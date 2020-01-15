@@ -1,0 +1,161 @@
+*----------------------------------------------------------------------*
+***INCLUDE ZFA_OO_ALV_ORNEK5_KONTROLLEO01.
+*----------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*&      Module  KONTROLLERI_OLUSTUR  OUTPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE kontrolleri_olustur OUTPUT.
+
+  FIELD-SYMBOLS <fs_fcat> TYPE lvc_s_fcat.
+  DATA : ls_sflight LIKE LINE OF gt_sflight.
+
+  IF go_custom_container IS INITIAL.
+
+    " go_custom_container
+    " cl_gui_custom_container
+
+    CREATE OBJECT go_custom_container
+      EXPORTING
+*       parent         =
+        container_name = 'ALV_AREA1'
+*       style          =
+*       lifetime       = lifetime_default
+*       repid          =
+*       dynnr          =
+*       no_autodef_progid_dynnr     =
+*       EXCEPTIONS
+*       cntl_error     = 1
+*       cntl_system_error           = 2
+*       create_error   = 3
+*       lifetime_error = 4
+*       lifetime_dynpro_dynpro_link = 5
+*       others         = 6
+      .
+    IF sy-subrc <> 0.
+*      MESSAGE ID SY-MSGID TYPE SY-MSGTY NUMBER SY-MSGNO
+*                 WITH SY-MSGV1 SY-MSGV2 SY-MSGV3 SY-MSGV4.
+    ENDIF.
+
+    " go_sflight_alv
+    " cl_gui_alv_grid
+    CREATE OBJECT go_sflight_alv
+      EXPORTING
+*       i_shellstyle      = 0
+*       i_lifetime        =
+        i_parent = go_custom_container
+*       i_appl_events     = space
+*       i_parentdbg       =
+*       i_applogparent    =
+*       i_graphicsparent  =
+*       i_name   =
+*       i_fcat_complete   = SPACE
+*  EXCEPTIONS
+*       error_cntl_create = 1
+*       error_cntl_init   = 2
+*       error_cntl_link   = 3
+*       error_dp_create   = 4
+*       others   = 5
+      .
+    IF sy-subrc <> 0.
+* MESSAGE ID SY-MSGID TYPE SY-MSGTY NUMBER SY-MSGNO
+*            WITH SY-MSGV1 SY-MSGV2 SY-MSGV3 SY-MSGV4.
+    ENDIF.
+
+    SELECT * FROM sflight INTO TABLE gt_sflight.
+
+    LOOP AT gt_sflight INTO ls_sflight.
+
+      CALL FUNCTION 'ENQUEUE_ESFLIGHT'
+        EXPORTING
+          mode_sflight = 'E'
+          mandt        = sy-mandt
+          carrid       = ls_sflight-carrid
+          connid       = ls_sflight-connid
+          fldate       = ls_sflight-fldate
+*         X_CARRID     = ' '
+*         X_CONNID     = ' '
+*         X_FLDATE     = ' '
+*         _SCOPE       = '2'
+*         _WAIT        = ' '
+*         _COLLECT     = ' '
+* EXCEPTIONS
+*         FOREIGN_LOCK = 1
+*         SYSTEM_FAILURE       = 2
+*         OTHERS       = 3
+        .
+      IF sy-subrc <> 0.
+* Implement suitable error handling here
+      ENDIF.
+
+
+    ENDLOOP.
+
+*    gs_layout-edit = abap_true .
+
+    CALL FUNCTION 'LVC_FIELDCATALOG_MERGE'
+      EXPORTING
+*       I_BUFFER_ACTIVE  =
+        i_structure_name = 'SFLIGHT'
+*       I_CLIENT_NEVER_DISPLAY       = 'X'
+*       I_BYPASSING_BUFFER           =
+*       I_INTERNAL_TABNAME           =
+      CHANGING
+        ct_fieldcat      = gt_fcat
+* EXCEPTIONS
+*       INCONSISTENT_INTERFACE       = 1
+*       PROGRAM_ERROR    = 2
+*       OTHERS           = 3
+      .
+    IF sy-subrc <> 0.
+* Implement suitable error handling here
+    ENDIF.
+
+    LOOP AT gt_fcat ASSIGNING <fs_fcat>.
+      IF <fs_fcat>-fieldname EQ 'PLANETYPE' OR  "bu iki alanı edite açtık
+         <fs_fcat>-fieldname EQ 'SEATSOCC'.
+
+        <fs_fcat>-edit = abap_true.
+      ENDIF.
+    ENDLOOP.
+
+    CREATE OBJECT go_event_handler.
+    SET HANDLER go_event_handler->handle_data_changed FOR go_sflight_alv.
+
+    CALL METHOD go_sflight_alv->set_table_for_first_display
+      EXPORTING
+*       i_structure_name = 'SFLIGHT'
+        is_layout       = gs_layout
+      CHANGING
+        it_outtab       = gt_sflight
+        it_fieldcatalog = gt_fcat
+*        EXCEPTIONS
+*       invalid_parameter_combination = 1
+*       program_error   = 2
+*       too_many_lines  = 3
+*       others          = 4
+      .
+    IF sy-subrc <> 0.
+*       Implement suitable error handling here
+    ENDIF.
+
+  ENDIF.
+
+  " go_sflight_alv
+  " cl_gui_alv_grid
+  " register_edit_event
+  CALL METHOD go_sflight_alv->register_edit_event
+    EXPORTING
+      i_event_id = cl_gui_alv_grid=>mc_evt_enter.
+*  EXCEPTIONS
+*     error      = 1
+*     others     = 2
+  .
+  IF sy-subrc <> 0.
+* Implement suitable error handling here
+  ENDIF.
+
+
+
+ENDMODULE.                 " KONTROLLERI_OLUSTUR  OUTPUT

@@ -1,0 +1,38 @@
+*----------------------------------------------------------------------*
+***INCLUDE ZFA_OO_ALV_ORNEK5_ALV_GOSTEF01.
+*----------------------------------------------------------------------*
+
+FORM alv_goster_degisitir.
+
+  DATA: lv_edit_mode TYPE i.
+
+  " go_sflight_alv
+  " cl_gui_alv_grid
+  " is_ready_for_input
+  CALL METHOD go_sflight_alv->is_ready_for_input
+*  EXPORTING
+*    i_row_id        =
+*    is_col_id       =
+    RECEIVING
+      ready_for_input = lv_edit_mode.
+
+  cl_gui_cfw=>flush( ).
+
+  IF lv_edit_mode = 0.
+    " go_sflight_alv
+    " cl_gui_alv_grid
+    " set_ready_for_input
+    CALL METHOD go_sflight_alv->set_ready_for_input
+      EXPORTING
+        i_ready_for_input = 1.
+
+  ELSEIF lv_edit_mode = 1.
+    CALL METHOD go_sflight_alv->set_ready_for_input
+      EXPORTING
+        i_ready_for_input = 0.
+
+  ENDIF.
+
+
+
+ENDFORM.                    " ALV_GOSTER_DEGISITIR_

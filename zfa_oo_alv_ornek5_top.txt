@@ -1,0 +1,12 @@
+*&---------------------------------------------------------------------*
+*&  Include           ZFA_OO_ALV_ORNEK5_TOP
+*&---------------------------------------------------------------------*
+CLASS : lcl_event_handler DEFINITION DEFERRED.
+
+DATA : ok_code             TYPE sy-ucomm,
+       go_custom_container TYPE REF TO cl_gui_custom_container,
+       go_sflight_alv      TYPE REF TO cl_gui_alv_grid,
+       gt_sflight          TYPE TABLE OF sflight, " veya gt_sflight TYPE STANDARD TABLE OF sflight.
+       gs_layout           TYPE lvc_s_layo,
+       gt_fcat             TYPE lvc_t_fcat,
+       go_event_handler    TYPE REF TO lcl_event_handler.

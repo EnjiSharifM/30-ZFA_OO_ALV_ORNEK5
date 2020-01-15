@@ -1,0 +1,19 @@
+*&---------------------------------------------------------------------*
+*& Report  ZFA_OO_ALV_ORNEK5
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT zfa_oo_alv_ornek5.
+
+INCLUDE zfa_oo_alv_ornek5_top.
+INCLUDE zfa_oo_alv_ornek5_clss.
+INCLUDE zfa_oo_alv_ornek5_status_01o01.
+INCLUDE zfa_oo_alv_ornek5_user_commi01.
+INCLUDE zfa_oo_alv_ornek5_kontrolleo01.
+INCLUDE zfa_oo_alv_ornek5_alv_gostef01.
+
+START-OF-SELECTION.
+  CALL SCREEN 0100.
